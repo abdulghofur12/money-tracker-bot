@@ -259,9 +259,11 @@ class SheetsManager:
             all_values = self.sheet.get_all_values()
             for i, row in enumerate(all_values[1:], start=2):
                 if str(row[0]) == str(transaction_id):
-                    self.sheet.delete_rows(i)
+                    print(f"DEBUG: Deleting row {i} with ID {transaction_id}")
+                    self.sheet.delete_rows(i, i)
                     self.update_summary()
                     return True
+            print(f"DEBUG: Transaction ID {transaction_id} not found. Rows: {[r[0] for r in all_values[1:]]}")
             return False
         except Exception as e:
             print(f"Error deleting transaction: {e}")
