@@ -101,7 +101,6 @@ class SheetsManager:
             ]
 
             self.sheet.update(f"A{next_row}:J{next_row}", [row])
-            print(f"DEBUG: Written row {next_row}: {row}")
 
             try:
                 if data["type"] == "pengeluaran":
@@ -114,9 +113,6 @@ class SheetsManager:
                     })
             except Exception:
                 pass
-
-            verify = self.sheet.get_all_values()
-            print(f"DEBUG: After write, sheet has {len(verify)} rows. Last row: {verify[-1] if verify else 'empty'}")
 
             self.update_summary()
             return True
@@ -153,9 +149,6 @@ class SheetsManager:
     def get_summary(self):
         try:
             transactions = self.sheet.get_all_values()
-            print(f"DEBUG: get_summary - sheet has {len(transactions)} rows")
-            if len(transactions) > 1:
-                print(f"DEBUG: get_summary - sample row: {transactions[1]}")
             if len(transactions) <= 1:
                 return {"total_income": 0, "total_expense": 0, "balance": 0, "categories": {}}
 
@@ -259,11 +252,9 @@ class SheetsManager:
             all_values = self.sheet.get_all_values()
             for i, row in enumerate(all_values[1:], start=2):
                 if str(row[0]) == str(transaction_id):
-                    print(f"DEBUG: Deleting row {i} with ID {transaction_id}")
                     self.sheet.delete_rows(i, i)
                     self.update_summary()
                     return True
-            print(f"DEBUG: Transaction ID {transaction_id} not found. Rows: {[r[0] for r in all_values[1:]]}")
             return False
         except Exception as e:
             print(f"Error deleting transaction: {e}")
