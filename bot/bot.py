@@ -299,9 +299,10 @@ def format_history(transactions):
     for t in transactions[:10]:
         icon = t.get("icon", "📦")
         tipe_icon = "💸" if t["type"] == "pengeluaran" else "💰"
+        amount_str = t["amount"].replace("Rp", "").replace(".", "").replace(",", "").strip() if t["amount"] else "0"
         text += (
             f"{icon} *{t['category']}* {tipe_icon}\n"
-            f"   💵 Rp {float(t['amount'].replace(',', '') or 0):,.0f}\n"
+            f"   💵 Rp {float(amount_str or 0):,.0f}\n"
             f"   📅 {t['date']} {t['time']}\n"
             f"   📝 {t.get('note', '-') or '-'}\n\n"
         )

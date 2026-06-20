@@ -86,7 +86,7 @@ class SheetsManager:
             time_str = datetime.now().strftime("%H:%M:%S")
 
             row = [
-                next_row - 1,
+                len(existing),
                 date_str,
                 time_str,
                 data["type"],
@@ -166,7 +166,7 @@ class SheetsManager:
                     tipe = row[3]
                     kategori = row[4]
                     try:
-                        amount_str = row[5].replace(",", "").replace(".", "")
+                        amount_str = row[5].replace("Rp", "").replace(".", "").replace(",", "").strip()
                         jumlah = float(amount_str)
                     except:
                         continue
