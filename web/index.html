@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💰 Money Tracker Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="loading-overlay" class="loading-overlay" style="display:none;">
+        <div class="spinner"></div>
+        <p>Syncing data...</p>
+    </div>
+
+    <div id="error-banner" class="error-banner" style="display:none;">
+        ⚠️ Gagal mengambil data dari Google Sheets. Mencoba lagi...
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <div class="logo">
+                    <span class="logo-icon">💰</span>
+                    <h1>Money Tracker</h1>
+                </div>
+                <div class="sync-controls">
+                    <span id="data-source" class="data-source">⚪ Loading...</span>
+                    <span id="refresh-status" class="refresh-status">Auto-refresh: 30s</span>
+                    <button id="manual-refresh" class="btn btn-refresh" title="Refresh data">🔄 Refresh</button>
+                </div>
+            </div>
+            <p class="subtitle">Kelola keuangan Anda dengan mudah • Real-time sync dengan Google Sheets</p>
+        </header>
+
+        <section class="summary-cards">
+            <div class="card card-income">
+                <div class="card-icon">📈</div>
+                <div class="card-content">
+                    <h3>Total Pemasukan</h3>
+                    <p class="amount" id="total-income">Rp 0</p>
+                </div>
+            </div>
+            <div class="card card-expense">
+                <div class="card-icon">📉</div>
+                <div class="card-content">
+                    <h3>Total Pengeluaran</h3>
+                    <p class="amount" id="total-expense">Rp 0</p>
+                </div>
+            </div>
+            <div class="card card-balance">
+                <div class="card-icon">💰</div>
+                <div class="card-content">
+                    <h3>Saldo</h3>
+                    <p class="amount" id="balance">Rp 0</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="filter-section">
+            <h2>🔍 Filter Transaksi</h2>
+            <div class="filters">
+                <select id="filter-type">
+                    <option value="all">Semua Tipe</option>
+                    <option value="pengeluaran">💸 Pengeluaran</option>
+                    <option value="pemasukan">💰 Pemasukan</option>
+                </select>
+                <select id="filter-category">
+                    <option value="all">Semua Kategori</option>
+                </select>
+                <input type="month" id="filter-month">
+                <button id="apply-filter" class="btn btn-primary">Terapkan</button>
+                <button id="reset-filter" class="btn btn-secondary">Reset</button>
+            </div>
+        </section>
+
+        <section class="charts-section">
+            <div class="chart-container">
+                <h2>📊 Pengeluaran per Kategori</h2>
+                <canvas id="categoryChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>📈 Trend Bulanan</h2>
+                <canvas id="trendChart"></canvas>
+            </div>
+        </section>
+
+        <section class="transactions-section">
+            <h2>📋 Riwayat Transaksi</h2>
+            <div class="table-container">
+                <table id="transactions-table">
+                    <thead>
+                        <tr>
+                            <th>Icon</th>
+                            <th>Tanggal</th>
+                            <th>Tipe</th>
+                            <th>Kategori</th>
+                            <th>Jumlah</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactions-body">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="categories-section">
+            <h2>🏷️ Ringkasan per Kategori</h2>
+            <div class="categories-grid" id="categories-grid">
+            </div>
+        </section>
+
+        <footer>
+            <p>💰 Money Tracker Dashboard | Real-time sync dengan Google Sheets</p>
+            <p class="update-time">Terakhir diperbarui: <span id="last-update">-</span></p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
