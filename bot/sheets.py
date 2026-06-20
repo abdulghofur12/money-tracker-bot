@@ -1,6 +1,6 @@
 import gspread
 from google.oauth2.service_account import Credentials
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import traceback
 import os
 import json
@@ -12,6 +12,8 @@ SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive",
 ]
+
+WIB = timezone(timedelta(hours=7))
 
 class SheetsManager:
     def __init__(self):
@@ -82,8 +84,8 @@ class SheetsManager:
             next_row = len(existing) + 1 if existing else 2
 
             icon = CATEGORY_ICONS.get(data["category"], "📦")
-            date_str = datetime.now().strftime("%Y-%m-%d")
-            time_str = datetime.now().strftime("%H:%M:%S")
+            date_str = datetime.now(WIB).strftime("%Y-%m-%d")
+            time_str = datetime.now(WIB).strftime("%H:%M:%S")
 
             row = [
                 len(existing),

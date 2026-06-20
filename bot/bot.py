@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timezone, timedelta
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application,
@@ -24,6 +25,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 SELECTING_TYPE, SELECTING_CATEGORY, ENTERING_AMOUNT, ENTERING_NOTE = range(4)
+
+WIB = timezone(timedelta(hours=7))
 
 sheets_manager = SheetsManager()
 
@@ -191,7 +194,7 @@ async def note_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"{tipe_icon} *Tipe:* {tipe}\n"
             f"💵 *Jumlah:* Rp {data['amount']:,.0f}\n"
             f"📝 *Keterangan:* {data['note'] or '-'}\n"
-            f"📅 *Tanggal:* {__import__('datetime').datetime.now().strftime('%d %B %Y %H:%M')}"
+            f"📅 *Tanggal:* {datetime.now(WIB).strftime('%d %B %Y %H:%M')}"
         )
     else:
         text = "❌ Gagal mencatat transaksi. Silakan coba lagi."
