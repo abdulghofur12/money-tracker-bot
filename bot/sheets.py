@@ -99,6 +99,7 @@ class SheetsManager:
             ]
 
             self.sheet.update(f"A{next_row}:J{next_row}", [row])
+            print(f"DEBUG: Written row {next_row}: {row}")
 
             try:
                 if data["type"] == "pengeluaran":
@@ -111,6 +112,9 @@ class SheetsManager:
                     })
             except Exception:
                 pass
+
+            verify = self.sheet.get_all_values()
+            print(f"DEBUG: After write, sheet has {len(verify)} rows. Last row: {verify[-1] if verify else 'empty'}")
 
             self.update_summary()
             return True
@@ -147,6 +151,9 @@ class SheetsManager:
     def get_summary(self):
         try:
             transactions = self.sheet.get_all_values()
+            print(f"DEBUG: get_summary - sheet has {len(transactions)} rows")
+            if len(transactions) > 1:
+                print(f"DEBUG: get_summary - sample row: {transactions[1]}")
             if len(transactions) <= 1:
                 return {"total_income": 0, "total_expense": 0, "balance": 0, "categories": {}}
 
