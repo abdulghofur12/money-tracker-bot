@@ -333,7 +333,6 @@ def main():
     app.add_handler(CommandHandler("help", lambda u, c: None))
     app.add_handler(CommandHandler("summary", summary_command))
     app.add_handler(CommandHandler("history", history_command))
-    app.add_handler(CommandHandler("clear", clear_command))
 
     clear_handler = ConversationHandler(
         entry_points=[CommandHandler("clear", clear_command)],
