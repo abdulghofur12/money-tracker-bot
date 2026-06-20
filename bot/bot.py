@@ -216,6 +216,48 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 
+CLEAR_CONFIRM, CLEAR_CANCEL = range(4, 6)
+
+
+async def clear_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = [
+        [
+            InlineKeyboardButton("✅ Ya, Hapus Semua", callback_data="clear_confirm"),
+            InlineKeyboardButton("❌ Batal", callback_data="clear_cancel"),
+        ]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text(
+        "⚠️ *Hapus Semua Data?*\n\n"
+        "Semua transaksi di Google Sheet akan dihapus secara permanen.\n"
+        "Data tidak bisa dikembalikan.\n\n"
+        "Yakin ingin melanjutkan?",
+        reply_markup=reply_markup,
+        parse_mode="Markdown",
+    )
+    return CLEAR_CONFIRM
+
+
+async def clear_confirm_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    if query.data == "clear_confirm":
+        success = sheets_manager.clear_all_data()
+        if success:
+            text = "🗑️ *Semua Data Berhasil Dihapus!*\n\nSheet sudah kosong dan siap digunakan untuk data baru."
+        else:
+            text = "❌ Gagal menghapus data. Silakan coba lagi."
+    else:
+        text = "❌ Penghapusan dibatalkan."
+
+    keyboard = [[InlineKeyboardButton("🏠 Menu Utama", callback_data="back_to_start")]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await query.edit_message_text(text, reply_markup=reply_markup, parse_mode="Markdown")
+    context.user_data.clear()
+    return ConversationHandler.END
+
+
 async def summary_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     summary = sheets_manager.get_summary()
     text = format_summary(summary)
@@ -291,6 +333,16 @@ def main():
     app.add_handler(CommandHandler("help", lambda u, c: None))
     app.add_handler(CommandHandler("summary", summary_command))
     app.add_handler(CommandHandler("history", history_command))
+    app.add_handler(CommandHandler("clear", clear_command))
+
+    clear_handler = ConversationHandler(
+        entry_points=[CommandHandler("clear", clear_command)],
+        states={
+            CLEAR_CONFIRM: [CallbackQueryHandler(clear_confirm_handler, pattern="^clear_")],
+        },
+        fallbacks=[CommandHandler("cancel", cancel)],
+    )
+    app.add_handler(clear_handler)
     app.add_handler(conv_handler)
     app.add_handler(CallbackQueryHandler(button_handler))
 

@@ -219,6 +219,23 @@ class SheetsManager:
             print(f"Error updating summary: {e}")
             traceback.print_exc()
 
+    def clear_all_data(self):
+        try:
+            self.sheet.clear()
+            self.sheet.update("A1:J1", [["ID", "Tanggal", "Waktu", "Tipe", "Kategori", "Jumlah", "Keterangan", "User", "Chat ID", "Icon"]])
+            self.sheet.format("A1:J1", {
+                "backgroundColor": {"red": 0.1, "green": 0.7, "blue": 0.4},
+                "textFormat": {"bold": True, "foregroundColor": {"red": 1, "green": 1, "blue": 1}},
+                "horizontalAlignment": "CENTER"
+            })
+            self.summary_sheet.clear()
+            self.summary_sheet.update("A1:E1", [["Kategori", "Total", "Jumlah Transaksi", "Tipe", "Persentase"]])
+            return True
+        except Exception as e:
+            print(f"Error clearing data: {e}")
+            traceback.print_exc()
+            return False
+
     def delete_transaction(self, transaction_id):
         try:
             all_values = self.sheet.get_all_values()
