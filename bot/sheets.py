@@ -216,7 +216,7 @@ class SheetsManager:
                 icon = CATEGORY_ICONS.get(cat, "📦")
                 self.summary_sheet.update(f"A{row}:E{row}", [[
                     f"{icon} {cat}",
-                    data["total"],
+                    f"Rp {data['total']:,.0f}",
                     data["count"],
                     data["type"],
                     f"{percentage:.1f}%"
@@ -225,11 +225,11 @@ class SheetsManager:
 
             self.summary_sheet.update(f"A{row}:E{row}", [["", "", "", "", ""]])
             row += 1
-            self.summary_sheet.update(f"A{row}:E{row}", [["Total Pemasukan", summary["total_income"], "", "", ""]])
+            self.summary_sheet.update(f"A{row}:E{row}", [["Total Pemasukan", f"Rp {summary['total_income']:,.0f}", "", "", ""]])
             row += 1
-            self.summary_sheet.update(f"A{row}:E{row}", [["Total Pengeluaran", summary["total_expense"], "", "", ""]])
+            self.summary_sheet.update(f"A{row}:E{row}", [["Total Pengeluaran", f"Rp {summary['total_expense']:,.0f}", "", "", ""]])
             row += 1
-            self.summary_sheet.update(f"A{row}:E{row}", [["Saldo", summary["balance"], "", "", ""]])
+            self.summary_sheet.update(f"A{row}:E{row}", [["Saldo", f"Rp {summary['balance']:,.0f}", "", "", ""]])
         except Exception as e:
             print(f"Error updating summary: {e}")
             traceback.print_exc()

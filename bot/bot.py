@@ -131,6 +131,17 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode="Markdown")
 
+    elif data.startswith("del_"):
+        tx_id = data[4:]
+        success = sheets_manager.delete_transaction(tx_id)
+        if success:
+            text = f"🗑️ *Transaksi ID {tx_id} Berhasil Dihapus!*"
+        else:
+            text = f"❌ Transaksi ID {tx_id} tidak ditemukan."
+        keyboard = [[InlineKeyboardButton("🏠 Menu Utama", callback_data="back_to_start")]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await query.edit_message_text(text, reply_markup=reply_markup, parse_mode="Markdown")
+
     elif data == "back_to_start":
         keyboard = [
             [
@@ -269,8 +280,30 @@ async def summary_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def history_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     transactions = sheets_manager.get_transactions(limit=10)
-    text = format_history(transactions)
-    await update.message.reply_text(text, parse_mode="Markdown")
+    if not transactions:
+        await update.message.reply_text("📋 *Riwayat Transaksi*\n\nBelum ada transaksi.", parse_mode="Markdown")
+        return
+
+    text = "📋 *Riwayat Transaksi (10 terakhir)*\n\n"
+    for t in transactions[:10]:
+        icon = t.get("icon", "📦")
+        tipe_icon = "💸" if t["type"] == "pengeluaran" else "💰"
+        amount_str = t["amount"].replace("Rp", "").replace(".", "").replace(",", "").strip() if t["amount"] else "0"
+        text += (
+            f"{icon} *{t['category']}* {tipe_icon}\n"
+            f"   💵 Rp {float(amount_str or 0):,.0f}\n"
+            f"   📅 {t['date']} {t['time']}\n"
+            f"   📝 {t.get('note', '-') or '-'}\n"
+            f"   🆔 ID: {t['id']}\n\n"
+        )
+
+    keyboard = []
+    for t in transactions[:10]:
+        keyboard.append([InlineKeyboardButton(f"🗑️ Hapus ID {t['id']}", callback_data=f"del_{t['id']}")])
+    keyboard.append([InlineKeyboardButton("🏠 Menu Utama", callback_data="back_to_start")])
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    await update.message.reply_text(text, reply_markup=reply_markup, parse_mode="Markdown")
 
 
 def format_summary(summary):
