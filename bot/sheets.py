@@ -100,14 +100,17 @@ class SheetsManager:
 
             self.sheet.update(f"A{next_row}:J{next_row}", [row])
 
-            if data["type"] == "pengeluaran":
-                self.sheet.format(f"A{next_row}:J{next_row}", {
-                    "backgroundColor": {"red": 1, "green": 0.95, "blue": 0.95}
-                })
-            else:
-                self.sheet.format(f"A{next_row}:J{next_row}", {
-                    "backgroundColor": {"red": 0.95, "green": 1, "blue": 0.95}
-                })
+            try:
+                if data["type"] == "pengeluaran":
+                    self.sheet.format(f"A{next_row}:J{next_row}", {
+                        "backgroundColor": {"red": 1, "green": 0.95, "blue": 0.95}
+                    })
+                else:
+                    self.sheet.format(f"A{next_row}:J{next_row}", {
+                        "backgroundColor": {"red": 0.95, "green": 1, "blue": 0.95}
+                    })
+            except Exception:
+                pass
 
             self.update_summary()
             return True
@@ -188,11 +191,14 @@ class SheetsManager:
 
             self.summary_sheet.clear()
             self.summary_sheet.update("A1:E1", [["Kategori", "Total", "Jumlah Transaksi", "Tipe", "Persentase"]])
-            self.summary_sheet.format("A1:E1", {
-                "backgroundColor": {"red": 0.1, "green": 0.7, "blue": 0.4},
-                "textFormat": {"bold": True, "foregroundColor": {"red": 1, "green": 1, "blue": 1}},
-                "horizontalAlignment": "CENTER"
-            })
+            try:
+                self.summary_sheet.format("A1:E1", {
+                    "backgroundColor": {"red": 0.1, "green": 0.7, "blue": 0.4},
+                    "textFormat": {"bold": True, "foregroundColor": {"red": 1, "green": 1, "blue": 1}},
+                    "horizontalAlignment": "CENTER"
+                })
+            except Exception:
+                pass
 
             row = 2
             total_all = summary["total_income"] + summary["total_expense"]
@@ -223,11 +229,14 @@ class SheetsManager:
         try:
             self.sheet.clear()
             self.sheet.update("A1:J1", [["ID", "Tanggal", "Waktu", "Tipe", "Kategori", "Jumlah", "Keterangan", "User", "Chat ID", "Icon"]])
-            self.sheet.format("A1:J1", {
-                "backgroundColor": {"red": 0.1, "green": 0.7, "blue": 0.4},
-                "textFormat": {"bold": True, "foregroundColor": {"red": 1, "green": 1, "blue": 1}},
-                "horizontalAlignment": "CENTER"
-            })
+            try:
+                self.sheet.format("A1:J1", {
+                    "backgroundColor": {"red": 0.1, "green": 0.7, "blue": 0.4},
+                    "textFormat": {"bold": True, "foregroundColor": {"red": 1, "green": 1, "blue": 1}},
+                    "horizontalAlignment": "CENTER"
+                })
+            except Exception:
+                pass
             self.summary_sheet.clear()
             self.summary_sheet.update("A1:E1", [["Kategori", "Total", "Jumlah Transaksi", "Tipe", "Persentase"]])
             return True
