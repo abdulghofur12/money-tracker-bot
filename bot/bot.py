@@ -298,8 +298,11 @@ async def history_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
     keyboard = []
+    seen_ids = set()
     for t in transactions[:10]:
-        keyboard.append([InlineKeyboardButton(f"🗑️ Hapus ID {t['id']}", callback_data=f"del_{t['id']}")])
+        if t["id"] not in seen_ids:
+            seen_ids.add(t["id"])
+            keyboard.append([InlineKeyboardButton(f"🗑️ Hapus ID {t['id']}", callback_data=f"del_{t['id']}")])
     keyboard.append([InlineKeyboardButton("🏠 Menu Utama", callback_data="back_to_start")])
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -346,6 +349,15 @@ def format_history(transactions):
     return text
 
 
+async def fixids_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("🔧 Sedang memperbaiki ID duplikat...")
+    fixed = sheets_manager.fix_duplicate_ids()
+    if fixed > 0:
+        await update.message.reply_text(f"✅ Berhasil menghapus *{fixed}* data duplikat ID.", parse_mode="Markdown")
+    else:
+        await update.message.reply_text("✅ Tidak ada ID duplikat ditemukan.")
+
+
 def main():
     sheets_manager.setup_sheets()
 
@@ -370,6 +382,7 @@ def main():
     app.add_handler(CommandHandler("help", lambda u, c: None))
     app.add_handler(CommandHandler("summary", summary_command))
     app.add_handler(CommandHandler("history", history_command))
+    app.add_handler(CommandHandler("fixids", fixids_command))
 
     clear_handler = ConversationHandler(
         entry_points=[CommandHandler("clear", clear_command)],

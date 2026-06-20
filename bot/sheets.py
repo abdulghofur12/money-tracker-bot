@@ -87,8 +87,18 @@ class SheetsManager:
             date_str = datetime.now(WIB).strftime("%Y-%m-%d")
             time_str = datetime.now(WIB).strftime("%H:%M:%S")
 
+            max_id = 0
+            for row_data in existing[1:]:
+                if row_data and row_data[0]:
+                    try:
+                        row_id = int(row_data[0])
+                        if row_id > max_id:
+                            max_id = row_id
+                    except ValueError:
+                        pass
+
             row = [
-                len(existing),
+                max_id + 1,
                 date_str,
                 time_str,
                 data["type"],
@@ -127,9 +137,14 @@ class SheetsManager:
             if len(all_values) <= 1:
                 return []
             transactions = []
-            for row in all_values[1:][-limit:]:
+            seen_ids = set()
+            for row in reversed(all_values[1:]):
+                tx_id = row[0] if len(row) > 0 else ""
+                if tx_id in seen_ids:
+                    continue
+                seen_ids.add(tx_id)
                 transactions.append({
-                    "id": row[0] if len(row) > 0 else "",
+                    "id": tx_id,
                     "date": row[1] if len(row) > 1 else "",
                     "time": row[2] if len(row) > 2 else "",
                     "type": row[3] if len(row) > 3 else "",
@@ -140,7 +155,9 @@ class SheetsManager:
                     "chat_id": row[8] if len(row) > 8 else "",
                     "icon": row[9] if len(row) > 9 else ""
                 })
-            return list(reversed(transactions))
+                if len(transactions) >= limit:
+                    break
+            return transactions
         except Exception as e:
             print(f"Error getting transactions: {e}")
             traceback.print_exc()
@@ -250,13 +267,46 @@ class SheetsManager:
     def delete_transaction(self, transaction_id):
         try:
             all_values = self.sheet.get_all_values()
+            rows_to_delete = []
             for i, row in enumerate(all_values[1:], start=2):
                 if str(row[0]) == str(transaction_id):
-                    self.sheet.delete_rows(i, i)
-                    self.update_summary()
-                    return True
-            return False
+                    rows_to_delete.append(i)
+
+            if not rows_to_delete:
+                return False
+
+            for i in reversed(rows_to_delete):
+                self.sheet.delete_rows(i, i)
+
+            self.update_summary()
+            return True
         except Exception as e:
             print(f"Error deleting transaction: {e}")
             traceback.print_exc()
             return False
+
+    def fix_duplicate_ids(self):
+        try:
+            all_values = self.sheet.get_all_values()
+            if len(all_values) <= 1:
+                return 0
+
+            seen_ids = {}
+            rows_to_delete = []
+
+            for i, row in enumerate(all_values[1:], start=2):
+                if row and row[0]:
+                    tx_id = str(row[0])
+                    if tx_id in seen_ids:
+                        rows_to_delete.append(i)
+                    else:
+                        seen_ids[tx_id] = i
+
+            for i in reversed(rows_to_delete):
+                self.sheet.delete_rows(i, i)
+
+            return len(rows_to_delete)
+        except Exception as e:
+            print(f"Error fixing duplicate IDs: {e}")
+            traceback.print_exc()
+            return 0
